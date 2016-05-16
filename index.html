@@ -1,0 +1,71 @@
+<!doctype html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hatch a blog</title>
+    <meta name="mobile-web-app-capable" content="yes">
+</head>
+
+<body ng-app='hab'>
+
+    <script type="text/ng-template" id="hab.login.tpl.html">
+        <button ng-click='vm.login("google")'>Sign up with Google</button>
+    </script>
+
+    <script type="text/ng-template" id="hab.dashboard.tpl.html">
+        <!--User-->
+        <div>
+            <span>{{vm.user.meta.name}}</span>
+            <img src="{{vm.user.meta.picture}}" alt="" style="width: 50px;">
+        </div>
+        <button class="btn" ng-click="vm.logout()">Logout</button>
+        <div>
+            <hr>
+            <div>
+                <h4>Create Blog</h4>
+                <form novalidate>
+                    Blog Name:
+                    <input type="text" ng-model="vm.newBlog.name" 
+                        ng-change="vm.onBlogNameEntered(vm.newBlog.name)" />
+                    <br /> Blog Theme:
+                    <input type="radio" ng-model="vm.newBlog.theme" value="basic" checked/>Basic
+                    <br /> 
+                    {{vm.creatingMessage}}
+                    <br>
+                    <!--<input type="button" ng-click="reset()" value="Reset" />-->
+                    <input type="submit" ng-click="vm.createBlog(vm.newBlog)" 
+                        value="Create New Blog" 
+                        ng-disabled="vm.isFormSubmittable == 'false'"/>
+                </form>
+                <pre>blog deets = {{vm.newBlog | json}}</pre>
+            </div>
+            <hr>
+            <div>
+                <div>Your Blogs ({{vm.user.blogs.length}})</div>
+                <ul ng-show="vm.user.blogs.length > 0">
+                    <li ng-repeat="b in vm.user.blogs track by $index">
+                        <span>{{::b.name}} - {{::b.theme}}</span>
+                        <button ng-click='vm.goToEditor(b)'>Write</button>
+                        <button ng-click="vm.deleteBlog(b)">Delete</button>
+                        <!--<button ng-class="vm.downloadBlog(b)">Download</button>-->
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="hab.editor.tpl.html">
+        <div>
+            Editor
+        </div>
+    </script>
+
+    <ui-view></ui-view>
+
+    <script src="libs/GitHub.bundle.min.js"></script>
+    <script src="./app.js"></script>
+</body>
+
+</html>

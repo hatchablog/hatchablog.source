@@ -1,0 +1,22 @@
+{
+    "name": "basic",
+    "files": {
+      "root": [
+          "index.html",
+          "main.css",
+          "main.js",
+          "main.json",
+          "page.html",
+          "post.html"
+      ],
+      "css": [
+          "entry.css",
+          "prism.css",
+          "style.css"
+      ],
+      "js": [
+          "hogan.min.js",
+          "prism.js"
+      ]
+    }
+}
