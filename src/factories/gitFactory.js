@@ -1,6 +1,4 @@
-/* globals Firebase angular Github*/
-import Github from '../wrappers/github';
-//var GitHub = require();
+/* globals Firebase angular GitHub*/
 
 export default {
     name: 'gitFactory',
@@ -8,6 +6,7 @@ export default {
         const gitApiUrl = 'https://api.github.com/';
 
         //git Obj for reference
+        const git = null;
         let gitObj = null;
         let gitRepo = null;
 
@@ -19,7 +18,7 @@ export default {
                 let finalArgs = args.concat(innerArgs);
                 return fn.apply(null, finalArgs);
             };
-        }
+        };
 
         //async finish
         let asyncFinish = (total, success) => {
@@ -34,7 +33,7 @@ export default {
                     }
                 }
             }
-        }
+        };
 
         //sync repo sequence
         let syncSeq = (success) => {
@@ -48,26 +47,22 @@ export default {
             }
 
             tmp();
-        }
+        };
 
         //async write
         let asyncWrite = (data, target, err, finish) => {
-
-            gitRepo.writeFile('master', '', data, 'Some Message...', {
-                author: '',
-                commiter: 'hatchablog@gmail.com',
-                //encode: true
-            }, (e) => {
+            if(git && git.repo) {
                 debugger;
-            });
 
-            // gitObj.repository.write('master', target, data, 'simple', (e) => {
-            //     var ret = err(e);
-            //     if (ret == false) {
-            //         finish();
-            //     }
-            // });
-        }
+                gitRepo.writeFile('master', '', data, 'Some Message...', {
+                    author: '',
+                    commiter: 'hatchablog@gmail.com',
+                    //encode: true
+                }, (response) => {
+                    debugger;
+                });
+            }
+        };
 
 
         //async write fn
@@ -80,7 +75,7 @@ export default {
             }, function errorCallback(error) {
                 err(error);
             });
-        }
+        };
 
 
         //create git for blog
@@ -130,42 +125,29 @@ export default {
             // syncSeq(function () {
             //     $log.log('Blog successfully initialised.');
             // }, a1, a2, a3, a4, a5);
-        }
+        };
 
 
         //fireUpGit
         let fireUpGit = (isNewUser, userObj) => {
-            let gitFireBaseRef = new Firebase(habConstants.firebaseUrl + "/habPrivate/git/");
-            $firebaseObject(gitFireBaseRef).$loaded()
-                .then((data) => {
-
-                    //create git instance - fire up new instance
-                    gitObj = new GitHub({
-                        username: data.user,
-                        token: data.token,
-                        auth: 'basic',
-                        repository: 'hatchablog.github.io',
-                        branchName: 'master'
-                    });
-                    debugger;
-                    gitRepo = gitObj.getRepo(data.user, 'hatchablog.github.io');
-
-                    let userId = userObj.meta.id; //this will be the directory name
-                    if (isNewUser) {
-                        //Initialize user folder
-                    } else {
-                        //Navigate into user folder
-                    }
-                })
-                .catch((error) => {
-                    $log.log(error);
-                });
-        }
-
-
+            let userId = userObj.meta.id; //this will be the directory name
+            // if (isNewUser) {
+            //     //Initialize user folder
+            // } else {
+            //     //Navigate into user folder
+            // }
+        };
+        
+        let setGitDetails = (obj, repo) => {
+            let git = {
+                obj: obj,
+                repo: repo
+            }
+        };
 
         //return        
         const service = {};
+        service.setGitDetails = setGitDetails; 
         service.createGitForBlog = createGitForBlog;
         service.fireUpGit = fireUpGit;
         return service;

@@ -2,7 +2,15 @@
 
 export default {
     name: 'firebaseFactory',
-    factory: ($firebaseObject, $firebaseAuth, $log, $window, $firebaseArray, $state, observerFactory, gitFactory, habConstants) => {
+    factory: ($firebaseObject,
+              $firebaseAuth,
+              $log,
+              $window,
+              $firebaseArray,
+              $state,
+              observerFactory,
+              gitFactory,
+              habConstants) => {
         'ngInject';
 
         //log(`Full Name is ${firstName + ' ' + lastName}');
@@ -26,7 +34,7 @@ export default {
                 default:
                     return null;
             }
-        }
+        };
 
         baseAuthRef.$onAuth((authData) => {
 
@@ -62,7 +70,7 @@ export default {
                     .catch((error) => {
                         $log.log(error);
                     });
-            }
+            };
 
             //Called on successful authentication
             // By email
@@ -74,6 +82,8 @@ export default {
                 var user = $firebaseObject(profilesRef);
 
                 loadUserData(user);
+            } else {
+                $state.go('login');
             }
         });
 
@@ -90,6 +100,7 @@ export default {
                 .filter(function (b) {
                     return b.name !== blog.name;
                 });
+            
             currentUser.$save().then((data) => {
                 observerFactory.notify('blogsListUpdated');
             });
@@ -122,9 +133,7 @@ export default {
             // currentUser.$save().then((data) => {
             //     observerFactory.notify('blogsListUpdated');
             // });
-
-
-        }
+        };
 
         let login = (mode, scope, cbSuccess, cbError) => {
             baseAuthRef.$authWithOAuthPopup(mode, scope).then((authData) => {
@@ -150,7 +159,7 @@ export default {
         const service = {};
         service.getUser = () => {
             return currentUser;
-        }
+        };
         service.writeBlog = goToEditor;
         service.deleteBlog = deleteBlog;
         service.downloadBlog = downloadBlog;
