@@ -1,5 +1,7 @@
 export default {
-    func: ($rootScope, firebaseFactory, $state) => {
+    func: ($rootScope,
+           firebaseFactory,
+           $state) => {
         'ngInject';
         
         $rootScope.$on('$stateChangeStart',

@@ -51,9 +51,9 @@ angular.module('hab', deps)
     .factory(gitFactory.name, gitFactory.factory)
     .factory(utilFactory.name, utilFactory.factory)
 //Components
-    .directive(habLoginComponent.name, habLoginComponent.component) //login
-    .directive(habDashboardComponent.name, habDashboardComponent.component) //dashboard
-    .directive(habEditorComponent.name, habEditorComponent.component) //editor
+    .directive(habLoginComponent.name, habLoginComponent.component)
+    .directive(habDashboardComponent.name, habDashboardComponent.component)
+    .directive(habEditorComponent.name, habEditorComponent.component)
 //Config
     .config(config.func)
 //Run

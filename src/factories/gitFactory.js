@@ -6,9 +6,15 @@ export default {
         const gitApiUrl = 'https://api.github.com/';
 
         //git Obj for reference
-        const git = null;
-        let gitObj = null;
+        let git = null;
         let gitRepo = null;
+
+        let setGitDetails = (obj, repo) => {
+            git = {
+                obj: obj,
+                repo: repo
+            }
+        };
 
         //curry a function
         let curry = (fn) => {
@@ -54,7 +60,7 @@ export default {
             if(git && git.repo) {
                 debugger;
 
-                gitRepo.writeFile('master', '', data, 'Some Message...', {
+                git.repo.writeFile('master', target, data, 'Some Message...', {
                     author: '',
                     commiter: 'hatchablog@gmail.com',
                     //encode: true
@@ -87,7 +93,7 @@ export default {
                     var d = data;
                     var encodedStr = base64.encode(d);
 
-                    asyncWrite(encodedStr, 'index.html', () => {
+                    asyncWrite(encodedStr, 'test_jey.html', () => {
                         debugger;
                     }, () => {
                         debugger;
@@ -130,24 +136,48 @@ export default {
 
         //fireUpGit
         let fireUpGit = (isNewUser, userObj) => {
-            let userId = userObj.meta.id; //this will be the directory name
-            // if (isNewUser) {
-            //     //Initialize user folder
-            // } else {
-            //     //Navigate into user folder
-            // }
+
+            let gitFireBaseRef = new Firebase(habConstants.firebaseUrl + "/habPrivate/git/");
+
+            $firebaseObject(gitFireBaseRef).$loaded()
+                .then((data) => {
+                    //'common' will add the headder to every request.
+                    $http.defaults.headers.common["Authorization"] = 'token ' + data.token;
+
+                    //create git instance - fire up new instance
+                    let gitObj = new GitHub({
+                        username: data.user,
+                        token: data.token,
+                        auth: 'basic',
+                        repository: 'hatchablog.github.io',
+                        branchName: 'master'
+                    });
+                    let gitRepo = gitObj.getRepo(data.user, 'hatchablog.github.io');
+
+                    setGitDetails(gitObj, gitRepo);
+
+                    debugger;
+                    
+                    let userId = userObj.meta.id; //this will be the directory name
+                    if (isNewUser) {
+                        //Initialize user folder
+                    } else {
+                        //Navigate into user folder
+                    }
+                    
+                })
+                .catch((error) => {
+                    //TODO: Proper error handling.
+                    $log.log('Could not read git details from frirebase: ' + error);
+                });
+            
+            
         };
         
-        let setGitDetails = (obj, repo) => {
-            let git = {
-                obj: obj,
-                repo: repo
-            }
-        };
+      
 
         //return        
         const service = {};
-        service.setGitDetails = setGitDetails; 
         service.createGitForBlog = createGitForBlog;
         service.fireUpGit = fireUpGit;
         return service;

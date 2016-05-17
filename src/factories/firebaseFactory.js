@@ -37,7 +37,6 @@ export default {
         };
 
         baseAuthRef.$onAuth((authData) => {
-
             let loadUserData = (user) => {
                 //user $loaded occurs only the first time. - when login button is clicked.
                 user.$loaded()
