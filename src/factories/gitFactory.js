@@ -7,12 +7,12 @@ export default {
 
         //git Obj for reference
         let git = null;
-        let gitRepo = null;
 
-        let setGitDetails = (obj, repo) => {
+        let setGitDetails = (obj, repo, fireGitData) => {
             git = {
                 obj: obj,
-                repo: repo
+                repo: repo,
+                fireGitData: fireGitData
             }
         };
 
@@ -57,16 +57,20 @@ export default {
 
         //async write
         let asyncWrite = (data, target, err, finish) => {
-            if(git && git.repo) {
-                debugger;
-
-                git.repo.writeFile('master', target, data, 'Some Message...', {
-                    author: '',
-                    commiter: 'hatchablog@gmail.com',
-                    //encode: true
-                }, (response) => {
-                    debugger;
-                });
+            if (git && git.repo) {
+                git.repo.write(git.fireGitData.branch, target, data, "Writing Hatch A Blog data...",
+                    function (e) {
+                        if (e === null) {
+                            //no error
+                            if (finish) {
+                                finish();
+                            }
+                        } else {
+                            if (err) {
+                                err();
+                            }
+                        }
+                    });
             }
         };
 
@@ -76,9 +80,11 @@ export default {
             $http({
                 method: 'GET',
                 url: url
-            }).then(function successCallback(data) {
-                asyncWrite(data, target, err, finish)
-            }, function errorCallback(error) {
+            }).then((response) => {
+                //success callback
+                asyncWrite(response.data, target, err, finish)
+            }, (error) => {
+                //error callback
                 err(error);
             });
         };
@@ -87,50 +93,74 @@ export default {
         //create git for blog
         let createGitForBlog = (user, blogDetails, callback) => {
 
-            //let error = curry(errShow, null);
-            $http.get('themes/basic/index.html')
-                .success(function (data) {
-                    var d = data;
-                    var encodedStr = base64.encode(d);
+            let errCreatingBlog = (err) => {
+                $log.log('Error Writing File when initiating theme for blog: ' + err);
+            };
 
-                    asyncWrite(encodedStr, 'test_jey.html', () => {
-                        debugger;
-                    }, () => {
-                        debugger;
-                    });
-                })
-                .error(function () {
+            let userDirPrefix = 'blogs/' + user.meta.id + '/' + blogDetails['name'] + '/';
+            let urlPrefix = 'themes/' + blogDetails['theme'] + '/';
+
+            //get themeFiles list
+            $http({
+                method: 'GET',
+                url: urlPrefix + 'themeFiles.json'
+            }).then((response) => {
+                if (response.status === 200) {
+                    let rootFiles = response.data['root'];
+                    let cssFiles = response.data['css'];
+                    let jsFiles = response.data['js'];
+
                     debugger;
-                });
 
-            //trigger the callback.
-            if (callback) {
-                callback();
-            }
+                    if (rootFiles.length > 0) {
+                        rootFiles.map((fileName) => {
+                            debugger;
+                            asyncWriteFile((urlPrefix + fileName), (userDirPrefix + fileName), errCreatingBlog, () => {
+                                $log.log('Successfully wrote root file.');
+                            });
+                        });
+                    }
 
-            // asyncWriteFile(getPathForTheme('basic', 'index.html'), 'index.html', (err) => { 
-            //     $log.log(err); }, () => {
-            //     asyncWriteFile(getPathForTheme('basic', 'main.css'), 'main.css', (err) => { $log.log(err); }, () => {
-            //         asyncWriteFile(getPathForTheme('basic', 'main.js'), 'main.js', (err) => { $log.log(err); }, () => {
-            //             asyncWrite(JSON.stringify(config), 'main.json', (err) => { $log.log(err); }, () => {
-            //                 asyncWrite("", 'CNAME', (err) => { $log.log(err); }, () => {
-            //                     $log.log('Blog successfully initialised.');
-            //                 });
-            //             });
-            //         });
-            //     });
-            // });
+                    // if(cssFiles.length > 0) {
+                    //     cssFiles.map((fileName) => {
+                    //         asyncWriteFile((urlPrefix + fileName), (userDirPrefix + 'css/' + fileName), errCreatingBlog, () => {
+                    //             $log.log('Successfully wrote css file.');
+                    //         });
+                    //     });
+                    // }
+                    //
+                    // if(jsFiles.length > 0) {
+                    //     jsFiles.map((fileName) => {
+                    //         asyncWriteFile((urlPrefix + fileName), (userDirPrefix + 'js/' + fileName), errCreatingBlog, () => {
+                    //             $log.log('Successfully wrote js file.');
+                    //         });
+                    //     });
+                    // }
 
+                    // var config = {
+                    //     "name": user.meta.name,
+                    //     "number_of_posts_per_page": 5,
+                    //     "disqus_shortname": "",
+                    //     "posts": [],
+                    //     "pages": []
+                    // };
+                    //
+                    // asyncWrite(JSON.stringify(config), 'main.json', errCreatingBlog, () => {
+                    //     asyncWrite("", 'CNAME', errCreatingBlog, () => {
+                    //         $log.log('Blog successfully initialised.');
+                    //
+                    //         if (callback) {
+                    //             callback();
+                    //         }
+                    //     });
+                    // });
 
-            // let a1 = curry(asyncWriteFile, getPathForTheme('basic', 'index.html'), "index.html", error);
-            // let a2 = curry(asyncWriteFile, getPathForTheme('basic', 'main.css'), "main.css", error);
-            // let a3 = curry(asyncWriteFile, getPathForTheme('basic', 'main.js'), "main.js", error);
-
-            // let a4 = curry(asyncWrite, JSON.stringify(config), "main.json", error);
-            // let a5 = curry(asyncWrite, "", "CNAME", error);
-            // syncSeq(function () {
-            //     $log.log('Blog successfully initialised.');
-            // }, a1, a2, a3, a4, a5);
+                } else {
+                    $log.log('Error could not read theme files for the themes directory.')
+                }
+            }, (error) => {
+                $log.error('Error getting themes files - themeFiles.json' + error);
+            });
         };
 
 
@@ -140,41 +170,47 @@ export default {
             let gitFireBaseRef = new Firebase(habConstants.firebaseUrl + "/habPrivate/git/");
 
             $firebaseObject(gitFireBaseRef).$loaded()
-                .then((data) => {
+                .then((firebaseGitData) => {
+
                     //'common' will add the headder to every request.
-                    $http.defaults.headers.common["Authorization"] = 'token ' + data.token;
+                    $http.defaults.headers.common["Authorization"] = 'token ' + firebaseGitData.token;
 
                     //create git instance - fire up new instance
-                    let gitObj = new GitHub({
-                        username: data.user,
-                        token: data.token,
-                        auth: 'basic',
-                        repository: 'hatchablog.github.io',
-                        branchName: 'master'
+                    let gitObj = new Github({
+                        username: firebaseGitData.userId,
+                        token: firebaseGitData.token,
+                        auth: firebaseGitData.authType,
+                        repository: firebaseGitData.repoId,
+                        branchName: firebaseGitData.branch
                     });
-                    let gitRepo = gitObj.getRepo(data.user, 'hatchablog.github.io');
 
-                    setGitDetails(gitObj, gitRepo);
+                    let gitRepo = gitObj.getRepo(firebaseGitData.userId, firebaseGitData.repoId);
 
-                    debugger;
-                    
+                    setGitDetails(gitObj, gitRepo, firebaseGitData);
+
+
                     let userId = userObj.meta.id; //this will be the directory name
+
+                    // var newUserConfig = {
+                    //     "name": user.meta.name,
+                    //     "number_of_posts_per_page": 5,
+                    //     "disqus_shortname": "",
+                    //     "posts": [],
+                    //     "pages": []
+                    // };
+
                     if (isNewUser) {
                         //Initialize user folder
                     } else {
                         //Navigate into user folder
                     }
-                    
-                })
-                .catch((error) => {
-                    //TODO: Proper error handling.
-                    $log.log('Could not read git details from frirebase: ' + error);
-                });
-            
-            
+
+                }).catch((error) => {
+                //TODO: Proper error handling.
+                $log.log('Could not read git details from fire-base: ' + error);
+            });
         };
-        
-      
+
 
         //return        
         const service = {};

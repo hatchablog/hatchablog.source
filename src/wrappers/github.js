@@ -1,17 +1,14 @@
 'use strict';
 
-//import GitHubApi from 'github-api/dist/GitHub.js';
-
-
 /**
- * Instantiate a new GitHub object.
+ * Instantiate a new Github object.
  *
  * @param {Object} config An object containing the username, password, type of auth, and the repository to use.
  *
  * @constructor
  */
-function GitHub(config) {
-    var gitHubApi = new GitHub({
+function Github(config) {
+    var githubApi = new Github({
         username: config.username,
         token: config.token,
         auth: config.auth,
@@ -19,7 +16,7 @@ function GitHub(config) {
         branchName: 'master'
     });
 
-    this.repository = gitHubApi.getRepo(config.username, config.repository);
+    this.repository = githubApi.getRepo(config.username, config.repository);
 }
 
 /**
@@ -37,7 +34,7 @@ function GitHub(config) {
  *
  * @returns {Promise}
  */
-GitHub.prototype.saveFile = function (data) {
+Github.prototype.saveFile = function (data) {
     return new Promise(function (resolve, reject) {
         data.repository.write(
             data.branchName,
@@ -55,4 +52,4 @@ GitHub.prototype.saveFile = function (data) {
     });
 };
 
-module.exports = GitHub;
+module.exports = Github;

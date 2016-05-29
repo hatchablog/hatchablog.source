@@ -1,3 +1,8 @@
-.idea
-dist
-node_modules
+.idea/**
+dist/**
+node_modules/**
+*.iml
+
+.idea/workspace.xml
+
+.idea/hatchablog.source.iml

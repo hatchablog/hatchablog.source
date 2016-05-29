@@ -46,8 +46,8 @@ gulp.task('build-persistent', ['clean'], function () {
 
 gulp.task('copy', function () {
     gulp.src([
-        './node_modules/github-api/dist/GitHub.bundle.min.js'
-    ]).pipe(gulp.dest(config.outputDir+ 'libs'));
+        './lib/github.js'
+    ]).pipe(gulp.dest(config.outputDir+ 'lib'));
     gulp.src([
         './index.html'
     ]).pipe(gulp.dest(config.outputDir));
