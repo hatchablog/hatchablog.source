@@ -121,17 +121,20 @@ export default {
 
             // Blog directory creation in Github
             //initialze the repository with the theme of choice
-            gitFactory.createGitForBlog(currentUser, newBlog, () => {
+            gitFactory.createGitForBlog(currentUser, newBlog, (blogUrl) => {
                 
+                debugger;
+                newBlog.blogUrl = blogUrl;
+                
+                //On successfully created blog
+                currentUser['blogs'].pushIfNotExist(newBlog, (e) => {
+                    return e.name === newBlog.name;
+                });
+                //Save user object to DB.
+                currentUser.$save().then((data) => {
+                    observerFactory.notify('blogsListUpdated');
+                });
             });
-            //Add blog
-            // currentUser['blogs'].pushIfNotExist(newBlog, (e) => {
-            //     return e.name === newBlog.name;
-            // });
-            //Save user object to DB.
-            // currentUser.$save().then((data) => {
-            //     observerFactory.notify('blogsListUpdated');
-            // });
         };
 
         let login = (mode, scope, cbSuccess, cbError) => {

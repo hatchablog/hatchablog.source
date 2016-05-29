@@ -110,50 +110,48 @@ export default {
                     let cssFiles = response.data['css'];
                     let jsFiles = response.data['js'];
 
-                    debugger;
-
                     if (rootFiles.length > 0) {
                         rootFiles.map((fileName) => {
-                            debugger;
                             asyncWriteFile((urlPrefix + fileName), (userDirPrefix + fileName), errCreatingBlog, () => {
                                 $log.log('Successfully wrote root file.');
                             });
                         });
                     }
 
-                    // if(cssFiles.length > 0) {
-                    //     cssFiles.map((fileName) => {
-                    //         asyncWriteFile((urlPrefix + fileName), (userDirPrefix + 'css/' + fileName), errCreatingBlog, () => {
-                    //             $log.log('Successfully wrote css file.');
-                    //         });
-                    //     });
-                    // }
-                    //
-                    // if(jsFiles.length > 0) {
-                    //     jsFiles.map((fileName) => {
-                    //         asyncWriteFile((urlPrefix + fileName), (userDirPrefix + 'js/' + fileName), errCreatingBlog, () => {
-                    //             $log.log('Successfully wrote js file.');
-                    //         });
-                    //     });
-                    // }
+                    if(cssFiles.length > 0) {
+                        cssFiles.map((fileName) => {
+                            asyncWriteFile((urlPrefix + fileName), (userDirPrefix + 'css/' + fileName), errCreatingBlog, () => {
+                                $log.log('Successfully wrote css file.');
+                            });
+                        });
+                    }
 
-                    // var config = {
-                    //     "name": user.meta.name,
-                    //     "number_of_posts_per_page": 5,
-                    //     "disqus_shortname": "",
-                    //     "posts": [],
-                    //     "pages": []
-                    // };
-                    //
-                    // asyncWrite(JSON.stringify(config), 'main.json', errCreatingBlog, () => {
-                    //     asyncWrite("", 'CNAME', errCreatingBlog, () => {
-                    //         $log.log('Blog successfully initialised.');
-                    //
-                    //         if (callback) {
-                    //             callback();
-                    //         }
-                    //     });
-                    // });
+                    if(jsFiles.length > 0) {
+                        jsFiles.map((fileName) => {
+                            asyncWriteFile((urlPrefix + fileName), (userDirPrefix + 'js/' + fileName), errCreatingBlog, () => {
+                                $log.log('Successfully wrote js file.');
+                            });
+                        });
+                    }
+
+                    let blogConfig = {
+                        "name": blogDetails['name'],
+                        "number_of_posts_per_page": 5,
+                        "disqus_shortname": "",
+                        "posts": [],
+                        "pages": []
+                    };
+
+
+                    asyncWrite(JSON.stringify(blogConfig), 'main.json', errCreatingBlog, () => {
+                        asyncWrite("", 'CNAME', errCreatingBlog, () => {
+                            $log.log('Blog successfully initialised.');
+                            let blogUrl = 'http://hatchablog.github.io/' + userDirPrefix;
+                            if (callback) {
+                                callback(blogUrl);
+                            }
+                        });
+                    });
 
                 } else {
                     $log.log('Error could not read theme files for the themes directory.')
